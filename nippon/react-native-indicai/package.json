@@ -1,0 +1,26 @@
+{
+  "name": "react-native-indicai",
+  "version": "1.0.0",
+  "description": "On-device Indic language STT, MT, and TTS for React Native",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "src/",
+    "android/",
+    "ios/",
+    "react-native-indicai.podspec"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": ["react-native", "indic", "stt", "tts", "whisper", "nlp"],
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/react-native": "^0.73.0"
+  }
+}

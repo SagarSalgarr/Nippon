@@ -1,0 +1,36 @@
+buildscript {
+  ext.kotlin_version = '1.9.22'
+  repositories { google(); mavenCentral() }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:8.2.0'
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+  }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+  namespace 'com.indicai'
+  compileSdk 34
+  defaultConfig {
+    minSdk 26
+    targetSdk 34
+  }
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+  kotlinOptions { jvmTarget = '17' }
+}
+
+repositories { google(); mavenCentral() }
+
+dependencies {
+  implementation 'com.facebook.react:react-android:0.73.6'
+  implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.20.0'
+  implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+  implementation 'com.google.code.gson:gson:2.10.1'
+  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+  implementation 'org.apache.commons:commons-math3:3.6.1'
+}

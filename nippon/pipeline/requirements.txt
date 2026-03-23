@@ -1,0 +1,20 @@
+# Indic AI SDK — quantization pipeline (Python 3.10+)
+#
+# PyTorch is a very large download (~900MB+). On slow or flaky networks pip may hit
+# ReadTimeoutError. Prefer:
+#   bash install_deps.sh
+# or:
+#   pip install --retries 15 --default-timeout 1000 -r requirements.txt
+#
+# Also install (IndicTrans): pip install git+https://github.com/VarunGumma/IndicTransToolkit.git
+
+torch>=2.0.0,<2.11
+numpy>=1.24.0
+huggingface_hub>=0.20.0
+transformers>=4.36.0
+datasets>=2.16.0
+optimum[onnxruntime]>=1.16.0
+onnxruntime>=1.16.0
+boto3>=1.28.0
+jiwer>=3.0.0
+sacrebleu>=2.3.0
