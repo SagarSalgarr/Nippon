@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<!--
+  INSTRUCTIONS:
+  1. Copy this file to ExportOptions.plist (same directory)
+  2. Fill in YOUR_TEAM_ID (find it at developer.apple.com → Account → Membership)
+  3. Change method to "development", "ad-hoc", "enterprise", or "app-store"
+  4. For ad-hoc / app-store: add your provisioning profile name
+-->
+<dict>
+	<key>method</key>
+	<string>development</string>
+
+	<key>teamID</key>
+	<string>YOUR_TEAM_ID</string>
+
+	<!-- Optional: set to YES to compile bitcode (usually NO for RN apps) -->
+	<key>uploadBitcode</key>
+	<false/>
+
+	<key>uploadSymbols</key>
+	<true/>
+
+	<key>signingStyle</key>
+	<string>automatic</string>
+
+	<!-- For ad-hoc or manual signing, specify provisioning profile:
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>com.indicaidemo</key>
+		<string>IndicAI Demo AdHoc</string>
+	</dict>
+	-->
+</dict>
+</plist>
