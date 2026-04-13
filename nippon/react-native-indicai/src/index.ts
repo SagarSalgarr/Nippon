@@ -27,9 +27,11 @@
 import {
   NativeModules,
   NativeEventEmitter,
-  Platform,
   EventSubscription,
 } from 'react-native';
+
+// React Native / Hermes does not ship @types/node, so we declare require here.
+declare function require(module: string): any;
 
 const { IndicAIModule } = NativeModules;
 
@@ -210,6 +212,27 @@ const IndicAI = {
 };
 
 export default IndicAI;
+
+// ── Auto-configure from .env (via react-native-config) ───────────────────────
+// If the consuming app has react-native-config installed and sets
+//   INDICAI_MANIFEST_URL=...
+//   INDICAI_S3_BASE_URL=...
+// in their .env file, the SDK will pick those up automatically on import.
+// No manual configure() call is needed in the app.
+// If react-native-config is not installed, the SDK silently falls back to
+// the built-in production CDN URLs.
+(function autoConfigureFromEnv() {
+  try {
+    const Config = require('react-native-config').default;
+    const manifestUrl: string | undefined = Config?.INDICAI_MANIFEST_URL;
+    const s3BaseUrl: string | undefined   = Config?.INDICAI_S3_BASE_URL;
+    if (manifestUrl || s3BaseUrl) {
+      IndicAI.configure({ manifestUrl, s3BaseUrl });
+    }
+  } catch (_) {
+    // react-native-config not installed — use SDK defaults
+  }
+})();
 
 // ── Audio conversion helpers ──────────────────────────────────────────────────
 

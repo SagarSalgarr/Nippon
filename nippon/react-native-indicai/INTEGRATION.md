@@ -60,14 +60,21 @@ Models are downloaded once from our CDN on first launch (~550 MB). After that, w
 
 | # | Artifact | How to Use |
 |---|---|---|
-| 1 | `react-native-indicai/` folder | Run `npm install ./react-native-indicai` in your project |
+| 1 | GitHub repo — `react-native-indicai` | Install via npm (see Section 3.1 / 4.1) |
 | 2 | This document | Follow step by step |
 | 3 | `IndicAIDemo.apk` (Android) | Install and test on Android — see it working before you integrate |
 | 4 | `IndicAIDemo.ipa` (iOS, coming soon) | Install and test on iPhone via TestFlight |
 | 5 | 27 intent label strings | Listed in [Section 11](#11-all-27-intent-labels) — map them to your app screens |
 
+**GitHub Repository:** `https://github.com/SagarSalgarr/Nippon`
+SDK is located in the `nippon/react-native-indicai/` subfolder.
+
 **You do NOT need:** AWS keys, model files, Python scripts, any server, any API key.
 Everything is embedded in the SDK and downloads automatically.
+
+**CDN (model downloads — no auth needed):**
+- Manifest: `https://indicai-cdn.s3.ap-south-1.amazonaws.com/manifest.json`
+- Models: `https://indicai-cdn.s3.ap-south-1.amazonaws.com/models/`
 
 ---
 
@@ -75,8 +82,19 @@ Everything is embedded in the SDK and downloads automatically.
 
 ### 3.1 Install the package
 
+**Option A — Install directly from GitHub (recommended):**
 ```bash
 # In your React Native project root:
+npm install github:SagarSalgarr/Nippon#main
+```
+
+**Option B — Install from a shared `.tgz` file:**
+```bash
+npm install /path/to/react-native-indicai-1.0.0.tgz
+```
+
+**Option C — Install from local folder (if you cloned the repo):**
+```bash
 npm install ./react-native-indicai
 ```
 
@@ -106,12 +124,31 @@ npm install react-native-audio-recorder-player
 
 ### 4.1 Install the package (same as Android)
 
+**Option A — Install directly from GitHub (recommended):**
 ```bash
-# In your React Native project root:
+npm install github:SagarSalgarr/Nippon#main
+```
+
+**Option B — Install from a shared `.tgz` file:**
+```bash
+npm install /path/to/react-native-indicai-1.0.0.tgz
+```
+
+**Option C — Install from local folder:**
+```bash
 npm install ./react-native-indicai
 ```
 
 ### 4.2 Install iOS native dependencies (CocoaPods)
+
+First, ensure your `ios/Podfile` has the correct minimum deployment target:
+
+```ruby
+# ios/Podfile — must be 15.0 or higher
+platform :ios, '15.0'
+```
+
+Then run:
 
 ```bash
 cd ios
@@ -216,9 +253,62 @@ Everything else — `init()`, `transcribe()`, `translateToEnglish()`, `classifyI
 
 ---
 
-## 6. First-Time Setup
+## 6. CDN Configuration (Optional)
 
-### 6.1 Initialize the SDK
+By default the SDK downloads model files from the production CDN:
+
+```
+https://indicai-cdn.s3.ap-south-1.amazonaws.com/manifest.json
+https://indicai-cdn.s3.ap-south-1.amazonaws.com/models/<file>.zip
+```
+
+**You do not need to configure anything for production** — these URLs are built into the SDK.
+
+If you want to point to a custom/staging CDN (or keep the URL out of your git history), use `.env`:
+
+### Step 1 — Install react-native-config
+
+```sh
+npm install react-native-config
+```
+
+### Step 2 — Android: apply the dotenv Gradle plugin
+
+In `android/app/build.gradle`, add this at the very top (above all other lines):
+
+```gradle
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
+```
+
+### Step 3 — iOS: set ENVFILE in Build Phase
+
+In Xcode → your target → Build Phases → "Bundle React Native code and images", add at the top:
+
+```sh
+export ENVFILE=.env
+```
+
+### Step 4 — Create your `.env` file
+
+Copy the `.env.example` from the SDK and place it in your **app root** (same folder as `package.json`):
+
+```sh
+# .env  (app root — never commit this file)
+# Fill in the actual CDN URLs — get them from the SDK team.
+# Leave blank to use the built-in production CDN.
+INDICAI_MANIFEST_URL=
+INDICAI_S3_BASE_URL=
+```
+
+**That's it.** The SDK reads these automatically on import — no extra code needed in your app. If the `.env` values are absent or `react-native-config` is not installed, the SDK silently uses the built-in production CDN.
+
+> **Do not commit `.env`** — add it to `.gitignore`. Commit `.env.example` instead.
+
+---
+
+## 7. First-Time Setup
+
+### 7.1 Initialize the SDK
 
 Call this once when the user selects their language (e.g., on a language selection screen or app startup).
 
@@ -235,7 +325,7 @@ await IndicAI.init('hi');
 On first call, this will download ~550 MB of AI models in background.
 On subsequent calls, models are already cached — loads in ~5 seconds.
 
-### 6.2 Show download progress to the user
+### 7.2 Show download progress to the user
 
 Subscribe **before** calling `init()`:
 
@@ -270,7 +360,7 @@ Models downloaded (in order):
 | MMS-TTS (selected language) | Text → spoken audio | 101 MB |
 | MiniLM Intent | Detect what user wants | 80 MB |
 
-### 6.3 Switch language
+### 7.3 Switch language
 
 Call `init()` again with a new language code. The SDK reinitializes for the new language.
 Previously downloaded shared models (Whisper, IndicTrans2) are cached and not re-downloaded.
@@ -280,7 +370,7 @@ Only the TTS model for the new language is downloaded if not already cached.
 await IndicAI.init('ta'); // switch to Tamil
 ```
 
-### 6.4 Cleanup on screen unmount
+### 7.4 Cleanup on screen unmount
 
 ```typescript
 useEffect(() => {
@@ -293,7 +383,7 @@ useEffect(() => {
 
 ---
 
-## 7. Text Input — Full Flow
+## 8. Text Input — Full Flow
 
 User types in their language → you process it → SDK translates response back.
 
@@ -381,11 +471,11 @@ async function handleTextInput(userTypedText: string) {
 
 ---
 
-## 8. Speech Input — Full Flow
+## 9. Speech Input — Full Flow
 
 User taps mic → speaks → SDK processes → you get English + intent → call backend → SDK responds.
 
-### 8.1 Request microphone permission (do this once)
+### 9.1 Request microphone permission (do this once)
 
 ```typescript
 import { PermissionsAndroid, Platform } from 'react-native';
@@ -407,7 +497,7 @@ async function requestMicPermission(): Promise<boolean> {
 }
 ```
 
-### 8.2 Start recording (when user presses mic button)
+### 9.2 Start recording (when user presses mic button)
 
 ```typescript
 import IndicAI from 'react-native-indicai';
@@ -428,7 +518,7 @@ async function onMicButtonPress() {
 }
 ```
 
-### 8.3 Stop recording and process (when user releases mic button)
+### 9.3 Stop recording and process (when user releases mic button)
 
 ```typescript
 async function onMicButtonRelease() {
@@ -519,7 +609,7 @@ async function onMicButtonRelease() {
 
 ---
 
-## 9. Playing the Response Audio
+## 10. Playing the Response Audio
 
 The SDK returns a file path. You need to play it with an audio player.
 The same code works on both Android and iOS.
@@ -546,7 +636,7 @@ async function playAudio(audioPath: string) {
 
 ---
 
-## 10. Using the Drop-In Hook (Recommended)
+## 11. Using the Drop-In Hook (Recommended)
 
 Instead of calling each SDK method manually, use our `useIndicAI` hook.
 It manages all state — status, progress, results, errors — automatically.
@@ -740,7 +830,7 @@ export default function VoiceChatScreen() {
 
 ---
 
-## 11. All 27 Intent Labels
+## 12. All 27 Intent Labels
 
 These are the exact strings the SDK returns in `intentResult.intent`.
 Map each one to the appropriate screen or action in your app.
@@ -781,7 +871,7 @@ and asking the user to clarify.
 
 ---
 
-## 12. Exact API Contracts
+## 13. Exact API Contracts
 
 ### `IndicAI.init(languageCode)`
 
@@ -930,7 +1020,7 @@ Notes:
 
 ---
 
-## 13. Progress Events During Download
+## 14. Progress Events During Download
 
 During `IndicAI.init()`, the SDK emits progress for each model.
 Same event names and structure on Android and iOS.
@@ -950,7 +1040,7 @@ Each model fires multiple progress events from 0% to 100%, then moves to the nex
 
 ---
 
-## 14. Error Codes
+## 15. Error Codes
 
 Same error codes on Android and iOS.
 
@@ -968,7 +1058,7 @@ All errors carry a human-readable `.message` property. Log it for debugging.
 
 ---
 
-## 15. Complete System Diagram
+## 16. Complete System Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -1066,7 +1156,7 @@ All errors carry a human-readable `.message` property. Log it for debugging.
 
 ---
 
-## 16. Supported Languages
+## 17. Supported Languages
 
 Same languages supported on Android and iOS.
 
