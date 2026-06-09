@@ -28,7 +28,10 @@ repositories { google(); mavenCentral() }
 
 dependencies {
   implementation 'com.facebook.react:react-android:0.73.6'
-  implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.20.0'
+  // 1.22.0+ ships 16 KB-page-aligned native libs (both libonnxruntime.so AND
+  // libonnxruntime4j_jni.so at 0x4000); 1.20.0 left the JNI lib at 0x1000, which
+  // fails Google Play's 16 KB page-size requirement on arm64-v8a/x86_64.
+  implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.26.0'
   implementation 'com.squareup.okhttp3:okhttp:4.12.0'
   implementation 'com.google.code.gson:gson:2.10.1'
   implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'

@@ -17,8 +17,10 @@ Pod::Spec.new do |s|
   # Tokenizer vocab / dict / SentencePiece assets bundled with the pod
   s.resources = ["ios/assets/**/*"]
 
-  # ONNX Runtime from CocoaPods
-  s.dependency "onnxruntime-objc", "~> 1.18"
+  # ONNX Runtime from CocoaPods — pinned to the same 1.26 generation as the
+  # Android side (onnxruntime-android:1.26.0) to keep model/op behavior in parity.
+  # iOS has no 16 KB page requirement (Apple arm64 has used 16 KB pages for years).
+  s.dependency "onnxruntime-objc", "~> 1.26"
 
   s.dependency "React-Core"
 
